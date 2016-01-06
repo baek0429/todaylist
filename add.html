@@ -1,7 +1,5 @@
 {{define "content"}}
 <div id="content" class="col-xs-12 col-md-10 col-md-offset-1">
-	{{range $post := .Posts}}
-	{{template "addform"}}
-	{{end}}
+	{{template "addform" .BlobActionURL}}
 </div>
 {{end}}

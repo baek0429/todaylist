@@ -1,8 +1,9 @@
 var TODAYLIST = (function(){
 	'use strict'
 	var that = {};
+	that.gVar = {};
 	that.init = function(){
-		that.column.init();
+		that.addpost.init();
 	}
 	return that;
 })();

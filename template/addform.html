@@ -1,13 +1,13 @@
 {{define "addform"}}
-<form>
+<form id="addform" action="{{.}}" enctype="multipart/form-data" method="POST">
 	<fieldset class="form-group">
 		<label for="exampleInputTitle1">Title</label>
-		<input type="Title" class="form-control" id="exampleInputTitle1" placeholder="Title">
+		<input class="form-control" id="title" name="title" placeholder="Title">
 		<small class="text-muted">Title will be diplayed.</small>
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="exampleInputPassword1">Password</label>
-		<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+		<input type="password" class="form-control" id="password" name="password" placeholder="Password">
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="exampleSelect1">Example select</label>
@@ -31,11 +31,11 @@
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="exampleTextarea">Example textarea</label>
-		<textarea class="form-control" id="exampleTextarea" rows="3"></textarea>
+		<textarea class="form-control" id="description" name="description" rows="3"></textarea>
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="exampleInputFile">File input</label>
-		<input type="file" class="form-control-file" id="exampleInputFile">
+		<input type="file" class="form-control-file" id="imgfile" name="img">
 		<small class="text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
 	</fieldset>
 	<div class="radio">
@@ -61,6 +61,6 @@
 			<input type="checkbox"> Check me out
 		</label>
 	</div>
-	<button type="add-submit" class="btn btn-primary">Submit</button>
+	<button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {{end}}

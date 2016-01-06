@@ -1,9 +1,12 @@
 package model
 
+import "net/url"
+
 type Input struct {
-	Title       string
-	MainDisplay string
-	Posts       []Post
+	Title         string
+	MainDisplay   string
+	Posts         []Post
+	BlobActionURL *url.URL
 }
 
 func GetMainInput() Input {
@@ -11,5 +14,5 @@ func GetMainInput() Input {
 }
 
 func GetAddEmptyInput() Input {
-	return Input{Title: "Todaylist", Posts: GetAddEmptyPost()}
+	return Input{Title: "Todaylist"}
 }
