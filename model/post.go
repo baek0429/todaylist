@@ -3,6 +3,7 @@ package model
 type Post struct {
 	Id          int
 	Title       string
+	Password    string
 	Address     string
 	Hour        string
 	ImagePath   string
@@ -16,15 +17,20 @@ func SamplePosts() []Post {
 		post.Title = "title"
 		post.Address = "address"
 		post.Hour = "hour"
-		post.ImagePath = "img/sample.jpg"
+		post.ImagePath = "img/Mountain_Bluebird.jpg"
 		post.Description = "description"
+		post.Password = "1"
 		posts[i] = post
 	}
 	return posts
 }
 
 func GetAddEmptyPost() []Post {
-	return []Post{Post{Title: "Type your title", Address: "type your address", Hour: "xx:xx~xx:xx", Description: "Describe your service"}}
+	return []Post{Post{Title: "Type your title",
+		Address:     "type your address",
+		Hour:        "xx:xx~xx:xx",
+		Description: "Describe your service",
+		Password:    "Password"}}
 }
 
 func GetMainPosts() []Post {
