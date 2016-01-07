@@ -2,9 +2,9 @@ package model
 
 import (
 	"code.google.com/p/go-uuid/uuid"
+	"errors"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"time"
 )
 
 type Location struct {
@@ -24,18 +24,17 @@ func saveLocation(ctx context.Context, l *Location) (*datastore.Key, error) {
 	return datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Location", nil), l)
 }
 
-func SaveLocationIfNonExist(ctx context.Context, title string, dcrp string) (*datastore.Key, error) {
+func SaveLocationIfNonExist(ctx context.Context, title string) (*datastore.Key, error) {
 	if !IsLocationExist(ctx, title) {
 		l := NewLocation()
 		l.Title = title
-		l.Description = dcrp
 		key, err := saveLocation(ctx, &l)
 		return key, err
 	}
-	return nil, error.Error("There exists same name category")
+	return nil, errors.New("there exists same location")
 }
 
-func IsLocactionExist(ctx context.Context, string title) bool {
+func IsLocationExist(ctx context.Context, title string) bool {
 	var ls []Location
 	datastore.NewQuery("Locaction").Filter("Title =", title).GetAll(ctx, &ls)
 	if len(ls) != 0 {

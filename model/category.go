@@ -2,9 +2,9 @@ package model
 
 import (
 	"code.google.com/p/go-uuid/uuid"
+	"errors"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"time"
 )
 
 type Category struct {
@@ -22,10 +22,10 @@ func SaveCategoryIfNonExist(ctx context.Context, title string, dcrp string) (*da
 		key, err := saveCategory(ctx, &c)
 		return key, err
 	}
-	return nil, error.Error("There exists same name category")
+	return nil, errors.New("there exists same category name")
 }
 
-func IsCategoryExist(ctx context.Context, string title) bool {
+func IsCategoryExist(ctx context.Context, title string) bool {
 	var cs []Category
 	datastore.NewQuery("Category").Filter("Title =", title).GetAll(ctx, &cs)
 	if len(cs) != 0 {
