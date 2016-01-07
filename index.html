@@ -1,7 +1,6 @@
 {{define "content"}}
 <div id="content" class="col-xs-12 col-md-10 col-md-offset-1">
-	{{template "maindisplay" .}}
-	{{range $post := .Posts}}
+	{{range $post := .}}
 	{{template "post" $post}}
 	{{end}}
 </div>

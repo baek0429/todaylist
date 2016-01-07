@@ -10,8 +10,11 @@ handlers:
 - url: /js
   static_dir: js
 
-- url: /lib
-  static_dir: lib
+- url: /fj
+  static_dir: lib/fileuploader/js
+
+- url: /fc
+  static_dir: lib/fileuploader/css
 
 - url: /img
   static_dir: img
