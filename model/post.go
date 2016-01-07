@@ -20,37 +20,6 @@ type Post struct {
 	CategoryKeys []string
 }
 
-type Category struct {
-	UUID        string
-	Title       string
-	Description string
-	ParentDSID  string
-}
-
-type Location struct {
-	UUID       string
-	Title      string
-	PArentDSID string
-}
-
-func NewLocation() Location {
-	l := Location{
-		UUID: uuid.New(),
-	}
-	return l
-}
-
-func saveCategory(ctx context.Context, p *Category) (*datastore.Key, error) {
-	return datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Category", nil), p)
-}
-
-func NewCategory() Category {
-	c := Category{
-		UUID: uuid.New(),
-	}
-	return c
-}
-
 func NewPost() Post {
 	post := Post{
 		UUID: uuid.New(),
@@ -86,25 +55,4 @@ func SavePosts(ctx context.Context, ps *([]*Post)) error {
 		}
 	}
 	return nil
-}
-
-func GetSamplePosts() []Post {
-	posts := make([]Post, 10)
-	for i, post := range posts {
-		post.Title = "title"
-		post.Address = "address"
-		post.Hour = "hour"
-		post.Description = "description"
-		post.Password = "1"
-		posts[i] = post
-	}
-	return posts
-}
-
-func GetMainPosts() []Post {
-	return GetSamplePosts()
-}
-
-func GetPostByCategory() []Post {
-	return GetSamplePosts()
 }
