@@ -10,7 +10,10 @@ import (
 type Location struct {
 	UUID       string
 	Title      string
-	PArentDSID string
+	ParentDSID string
+}
+
+type LocationVM struct {
 }
 
 func NewLocation() Location {
@@ -20,23 +23,44 @@ func NewLocation() Location {
 	return l
 }
 
+func locationInit(ctx context.Context) {
+	locationSampling(ctx)
+}
+
+func locationSampling(ctx context.Context) {
+	key1, _ := SaveLocationIfNonExist(ctx, &Location{Title: "Seoul", UUID: uuid.New()})
+	l := NewLocation()
+	if key1 != nil {
+		l.Title = "Gangnam"
+		l.ParentDSID = key1.StringID()
+		saveLocation(ctx, &l)
+	}
+}
+
+func ParseLocation(ctx context.Context) (*[]Location, error) {
+	var ls []Location
+	_, err := datastore.NewQuery("Location").GetAll(ctx, &ls)
+	if err != nil {
+		return &ls, err
+	}
+	return &ls, nil
+}
+
 func saveLocation(ctx context.Context, l *Location) (*datastore.Key, error) {
 	return datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Location", nil), l)
 }
 
-func SaveLocationIfNonExist(ctx context.Context, title string) (*datastore.Key, error) {
-	if !IsLocationExist(ctx, title) {
-		l := NewLocation()
-		l.Title = title
-		key, err := saveLocation(ctx, &l)
+func SaveLocationIfNonExist(ctx context.Context, l *Location) (*datastore.Key, error) {
+	if !IsLocationExist(ctx, l) {
+		key, err := saveLocation(ctx, l)
 		return key, err
 	}
 	return nil, errors.New("there exists same location")
 }
 
-func IsLocationExist(ctx context.Context, title string) bool {
+func IsLocationExist(ctx context.Context, l *Location) bool {
 	var ls []Location
-	datastore.NewQuery("Locaction").Filter("Title =", title).GetAll(ctx, &ls)
+	datastore.NewQuery("Location").Filter("Title =", l.Title).GetAll(ctx, &ls)
 	if len(ls) != 0 {
 		return true
 	}

@@ -1,7 +1,7 @@
 {{define "addform"}}
 <form id="addform" action="{{.}}" enctype="multipart/form-data" method="POST">
 	<fieldset class="form-group">
-		<label for="exampleInputTitle1">Title</label>
+		<label for="exampleInputTitle1"></label>
 		<input class="form-control" id="title" name="title" placeholder="Title">
 		<small class="text-muted">Title will be diplayed.</small>
 	</fieldset>
@@ -10,24 +10,8 @@
 		<input type="password" class="form-control" id="password" name="password" placeholder="Password">
 	</fieldset>
 	<fieldset class="form-group">
-		<label for="exampleSelect1">Example select</label>
-		<select class="form-control" id="exampleSelect1">
-			<option>1</option>
-			<option>2</option>
-			<option>3</option>
-			<option>4</option>
-			<option>5</option>
-		</select>
-	</fieldset>
-	<fieldset class="form-group">
-		<label for="exampleSelect2">Example multiple select</label>
-		<select multiple class="form-control" id="exampleSelect2">
-			<option>1</option>
-			<option>2</option>
-			<option>3</option>
-			<option>4</option>
-			<option>5</option>
-		</select>
+		<label for="exampleInputPassword1">Hour</label>
+		<input type="password" class="form-control" id="password" name="password" placeholder="Password">
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="exampleTextarea">Example textarea</label>
@@ -42,6 +26,6 @@
 		<!-- <input type="file" class="form-control-file" id="imgfile" name="img"> -->
 		<small class="text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
 	</fieldset>
-	<button type="submit" class="btn btn-primary">Submit</button>
+	<button type="submit" class="btn btn-default">Submit</button>
 </form>
 {{end}}

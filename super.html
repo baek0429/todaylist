@@ -5,23 +5,15 @@
 			{{range $category := .Category}}
 			<row>
 				<p class="col-md-2">{{$category.Title}}</p>
-				<p class="col-md-8">{{$category.Description}}</p>
-				<p class="col-md-2">hmm</p>
 			</row>
 			{{end}}
 		</div>
-		<div id="column2" class="col-xs-12 col-md-3" style="border-left: solid thin #ff0000;">
-			{{range $loc := .Location}}
+		<div id="column2" class="col-xs-12 col-md-5 " style="border-left: solid thin #ff0000;">
+			{{range $location := .Location}}
 			<row>
-				<p class="col-md-6">location1</p>
-				<p class="col-md-6">description></p>
+				<p class="col-md-2">{{$location.Title}}</p>
 			</row>
 			{{end}}
-		</div>
-		<div id="column4" class="col-xs-12 col-md-4" style="border-left: solid thin #ff0000;">
-			<div>
-				asdfadsfadsfdsafasdfasdfdasf
-			</div>
 		</div>
 	</row>
 </div>

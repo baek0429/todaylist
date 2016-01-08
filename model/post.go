@@ -20,6 +20,9 @@ type Post struct {
 	CategoryKeys []string
 }
 
+type PostVM struct {
+}
+
 func NewPost() Post {
 	post := Post{
 		UUID: uuid.New(),

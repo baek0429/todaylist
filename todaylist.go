@@ -13,11 +13,16 @@ import (
 	"google.golang.org/appengine/mail"
 )
 
+var initDBSet bool
+
 func handler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	if !initDBSet {
+		m.InitiateSamples(ctx)
+	}
 	t := template.Must(template.ParseGlob("template/*")) // add sub-templates in /template
 	t.ParseFiles("index.html")                           // parse main.html as main
-	ctx := appengine.NewContext(r)
-	posts, err := m.ParseAllPosts(ctx) // get all posts in db.
+	posts, err := m.ParseAllPosts(ctx)                   // get all posts in db.
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -30,24 +35,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func superHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseGlob("template/*")) // add sub-templates in /template
 	t.ParseFiles("super.html")                           //parse super
+	ctx := appengine.NewContext(r)
 
-	c := make([]m.Category, 2)
-	c[0] = m.NewCategory()
-	c[0].Title = "test"
-	c[0].Description = "testtesttesttesttesttesttesttest"
-	c[1] = m.NewCategory()
-	c[1].Title = "test"
-	c[1].Description = "testtesttesttesttesttesttesttest"
-	l := make([]m.Location, 2)
-	l[0] = m.NewLocation()
-	l[0].Title = "test"
-	l[1] = m.NewLocation()
-	l[1].Title = "test"
-	err := t.ExecuteTemplate(w, "base",
+	cs, err := m.ParseCategory(ctx)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
+	ls, err := m.ParseLocation(ctx)
+	err = t.ExecuteTemplate(w, "base",
 		struct {
 			Category []m.Category
 			Location []m.Location
-		}{c, l})
+		}{*cs, *ls})
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -154,6 +153,7 @@ func serveImageHandler(w http.ResponseWriter, r *http.Request) {
 	blobstore.Send(w, appengine.BlobKey(r.FormValue("blobKey")))
 }
 func init() {
+	initDBSet = false
 	http.HandleFunc("/contact", contactHandler)
 	http.HandleFunc("/serve/", serveImageHandler)
 	http.HandleFunc("/add", addHandler)
