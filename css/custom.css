@@ -5,3 +5,10 @@
 #footer{
 	margin:0; margin-top:50px; padding-top: 50px; padding-bottom:50px;background-color:rgb(30, 30, 30);color:white;
 }
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}

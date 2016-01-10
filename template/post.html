@@ -1,25 +1,30 @@
 {{define "post"}}
 <div class="col-md-3 post">
-	<div class="wrapper" style="border: 1px solid #ccc; margin:10px 0; height:230px; overflow:hidden;">
-		<aside class="img-box" style="height:150px; overflow:hidden;">
+	<div class="wrapper" style="border: 1px solid #ccc; margin:10px 0; height:350px; overflow:hidden; background-color:#E0E0E0; border-top-left-radius:10px;padding:4px;">
+		<aside class="img-box" style="height:200px; overflow:hidden; border-top-left-radius:10px;">
 			<a href="/main/?uuid={{.UUID}}" target="_blank">
-			<img src='{{index .ImageSrc 0}}' style="width:100%; margin:auto 0;">
+				<img src='{{index .ImageSrc 0}}' style="width:100%; margin:auto 0;">
 			</a>
 		</aside>
-		<div id="post-title">
-			<p>
-				{{.Title}}
-			</p>
-		</div>
-		<div id="post-hour-info-box">
-			<p>
-				{{.Hour}}
-			</p>
-		</div>
-		<div id="post-description-info-box">
-			<p>
-				{{.Description}}
-			</p>
+		<div id="inner-wrapper" style="padding:10px 0px 0px 5px">
+			<div id="post-title">
+				<p>
+					{{.Title}}
+				</p>
+			</div>
+			<div id="post-hour-info-box">
+				<p>
+					{{.Hour}}
+				</p>
+			</div>
+			<div id="post-description-info-box">
+				<p>
+					{{.Description}}
+				</p>
+			</div>
+			<div style="position:absolute; bottom:0; padding-bottom:20px;border-top: 1px solid #ccc;">
+			<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+			</div>
 		</div>
 		<br class="clear-both" />
 	</div>

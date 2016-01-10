@@ -13,27 +13,6 @@ type Category struct {
 	ParentDSID string
 }
 
-type CategoryViewModel struct {
-	Single   Category
-	Children []Category
-}
-
-func (cs *[]Category) Sort(title string) *[]CategoryViewModel {
-	var cvms *[]CategoryViewModel
-	for _, c := range *cs {
-		if c.Title == title { // if title same to title
-			cvm := CategoryViewModel{
-				Single: c,
-			}
-			cvms = append(cvms, cvm)
-		} else { // not same
-			scvms := cs.Sort(c.Title)
-			c.Children = scvms
-		}
-	}
-	return cvms
-}
-
 func InitiateSamples(ctx context.Context) {
 	categoryInit(ctx)
 	locationInit(ctx)
