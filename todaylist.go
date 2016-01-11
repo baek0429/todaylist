@@ -11,23 +11,30 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/mail"
+	"strconv"
 )
 
 var initDBSet bool
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-	// if !initDBSet {
-	// 	m.InitiateSamples(ctx)
-	// 	initDBSet = true
-	// }
 	t := template.Must(template.ParseGlob("template/*")) // add sub-templates in /template
 	t.ParseFiles("index.html")                           // parse main.html as main
-	posts, err := m.ParseAllPosts(ctx)                   // get all posts in db.
+	ctx := appengine.NewContext(r)
+	keys, err := m.ParseAll(ctx, m.Post{}) // get all posts in db.
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
-	err = t.ExecuteTemplate(w, "base", posts) // exec templates
+	dataModels, err := m.ParseEntitiesFromKeys(ctx, keys) // get DataModel Entities
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
+	var postModels []m.Post
+	for i, model := range dataModels { // convert to ViewModel
+		p := model.(m.Post)
+		p.ID = keys[i].IntID()
+		postModels = append(postModels, p)
+	}
+	err = t.ExecuteTemplate(w, "base", postModels) // exec templates
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -38,19 +45,36 @@ func superHandler(w http.ResponseWriter, r *http.Request) {
 	t.ParseFiles("super.html")                           //parse super
 	ctx := appengine.NewContext(r)
 
-	cs, err := m.ParseCategory(ctx)
-	ls, err := m.ParseLocation(ctx)
-	cvms, err := m.GetCategoryVM(ctx, cs, "")
-	lvms, err := m.GetLocationVM(ctx, ls, "")
+	cKeys, err := m.ParseAll(ctx, m.Category{}) // get category keys
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		panic(err)
 	}
-	// (*cvms)[0].Children = append((*cvms)[0].Children, m.CategoryVM{Title: "woosung"}) // for test.
+	cModels, err := m.ParseEntitiesFromKeys(ctx, cKeys) // get category model as datamodel interface
+	if err != nil {
+		panic(err)
+	}
+	var Cvms []m.Category // convert from interface to struct
+	for _, model := range cModels {
+		Cvms = append(Cvms, model.(m.Category))
+	}
+
+	lKeys, err := m.ParseAll(ctx, m.Location{}) // same procedure
+	if err != nil {
+		panic(err)
+	}
+	lModels, err := m.ParseEntitiesFromKeys(ctx, lKeys)
+	if err != nil {
+		panic(err)
+	}
+	var Lvms []m.Location
+	for _, model := range lModels {
+		Lvms = append(Lvms, model.(m.Location))
+	}
 	err = t.ExecuteTemplate(w, "base",
 		struct {
-			CVMS []m.CategoryVM
-			LVMS []m.LocationVM
-		}{*cvms, *lvms})
+			CVMS []m.Category
+			LVMS []m.Location
+		}{Cvms, Lvms})
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -61,11 +85,16 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	t.ParseFiles("main.html")                            //parse main
 	r.ParseForm()
 	ctx := appengine.NewContext(r)
-	uuid := r.FormValue("uuid") // get post by uuid
-	posts := m.ParsePostByUID(ctx, uuid)
-	err := t.ExecuteTemplate(w, "base", posts)
-	if err != nil {
-		w.Write([]byte(err.Error()))
+	id := r.FormValue("id") // get post by id
+	key := m.ParseKeyFromID(ctx, id, m.Post{})
+	if key != nil {
+		model, err := m.ParseEntityFromKey(ctx, key)
+		err = t.ExecuteTemplate(w, "base", []m.Post{model.(m.Post)})
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
+	} else {
+		w.Write([]byte("No items under the id" + id))
 	}
 }
 
@@ -102,7 +131,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 			blobKeys = append(blobKeys, string(file.BlobKey))   // also save blobkey in case for use.
 		}
 
-		post := m.NewPost() // creating post and fill the fields.
+		var post m.Post // creating post and fill the fields.
 		post.Title = title
 		post.Password = password
 		post.Description = description
@@ -110,21 +139,11 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 		post.Time = time.Now()
 		post.ImageSrc = imgSrcs
 
-		posts := []*m.Post{&post} // uploading posts
-		c := make(chan int, 1)
-		go func() { // it seems that I need to creat a term to make sure that the change appears in the db.
-			er := m.SavePosts(ctx, &posts) // success?
-			if er != nil {
-				http.Error(w, er.Error(), http.StatusInternalServerError)
-				return
-			}
-			time.Sleep(time.Millisecond * 100)
-			c <- 1
-		}()
-		if 1 == <-c {
-			http.Redirect(w, r, "/main/?uuid="+posts[0].UUID, http.StatusFound) // redirect to /main/?uuid= with uuid
-		}
-		http.Redirect(w, r, "/error", http.StatusNotFound)
+		posts := []m.DataModel{post}            // uploading posts
+		keys, _ := m.SaveDataModels(ctx, posts) // success?
+		i := strconv.Itoa(int(keys[0].IntID()))
+		http.Redirect(w, r, "/main/?id="+i, http.StatusFound) // redirect to /main/?uuid= with uuid
+		// http.Redirect(w, r, "/error", http.StatusNotFound)
 	}
 }
 func contactHandler(w http.ResponseWriter, r *http.Request) {
@@ -160,22 +179,30 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 		ctx := appengine.NewContext(r)
 		r.ParseForm()
 		categoryTitle := r.FormValue("newCategory")
-		categoryParent := r.FormValue("categoryParent")
-		// w.Write([]byte(categoryTitle))
-		// w.Write([]byte(categoryParent))
+		categoryParentTitle := r.FormValue("categoryParent")
 		locationTitle := r.FormValue("newLocation")
-		locationParent := r.FormValue("locationParent")
-		if categoryTitle != "" {
-			err := m.SaveCategoryWithTitles(ctx, categoryTitle, categoryParent)
-			if err != nil {
-				w.Write([]byte(err.Error()))
-			}
+		locationParentTitle := r.FormValue("locationParent")
+
+		// save category
+		key, err := m.SaveIfTitleNoneExists(ctx, m.Category{Title: categoryParentTitle})
+		if err != nil {
+			w.Write([]byte(err.Error()))
 		}
-		if locationTitle != "" {
-			err := m.SaveLocationWithTitles(ctx, locationTitle, locationParent)
-			if err != nil {
-				w.Write([]byte(err.Error()))
-			}
+		c := m.Category{Title: categoryTitle}
+		if key != nil {
+			c = c.SetChildDSID([]int64{key.IntID()}).(m.Category)
+			m.SaveIfTitleNoneExists(ctx, c)
+		}
+
+		// save location
+		key, err = m.SaveIfTitleNoneExists(ctx, m.Location{Title: locationParentTitle})
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
+		l := m.Location{Title: locationTitle}
+		if key != nil {
+			l = l.SetChildDSID([]int64{key.IntID()}).(m.Location)
+			m.SaveIfTitleNoneExists(ctx, l)
 		}
 		http.Redirect(w, r, "/admin", http.StatusFound)
 	}

@@ -1,10 +1,11 @@
 {{define "content"}}
 <div id="content" class="col-xs-12 col-md-10 col-md-offset-1">
-{{template "maindisplay"}}
 	<div class="col-md-9">
-	{{range $post := .}}
-	{{template "post" $post}}
-	{{end}}
+		{{template "maindisplay"}}
+		{{range $post := .}}
+		{{template "post" $post}}
+		{{end}}
 	</div>
+	{{template "sidebar"}}
 </div>
 {{end}}

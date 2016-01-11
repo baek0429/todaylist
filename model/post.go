@@ -1,14 +1,11 @@
 package model
 
 import (
-	"code.google.com/p/go-uuid/uuid"
-	"golang.org/x/net/context"
-	"google.golang.org/appengine/datastore"
 	"time"
 )
 
 type Post struct {
-	UUID         string
+	ID           int64
 	Title        string
 	Password     string
 	Address      string
@@ -17,45 +14,33 @@ type Post struct {
 	BlobKeys     []string
 	Time         time.Time
 	ImageSrc     []string
-	CategoryKeys []string
+	CategoryKeys []int64
+	ParentDSID   []int64
+	ChildDSID    []int64
 }
 
-type PostVM struct {
+func (p Post) GetTitle() string {
+	return p.Title
 }
 
-func NewPost() Post {
-	post := Post{
-		UUID: uuid.New(),
+func (p Post) GetParentDSID() []int64 {
+	return p.ParentDSID
+}
+
+func (p Post) SetParentDSID(inputs []int64) DataModel {
+	for _, input := range inputs {
+		p.ParentDSID = append(p.ParentDSID, input)
 	}
-	return post
+	return p
 }
 
-func ParsePostByUID(ctx context.Context, uuid string) []Post {
-	var posts []Post
-	q := datastore.NewQuery("Post").Filter("UUID =", uuid)
-	q.GetAll(ctx, &posts)
-	return posts
-}
-
-func ParseAllPosts(ctx context.Context) ([]Post, error) {
-	var posts []Post
-	_, err := datastore.NewQuery("Post").Order("Time").GetAll(ctx, &posts)
-	if err != nil {
-		return nil, err
+func (p Post) SetChildDSID(inputs []int64) DataModel {
+	for _, input := range inputs {
+		p.ChildDSID = append(p.ChildDSID, input)
 	}
-	return posts, nil
+	return p
 }
 
-func savePost(ctx context.Context, p *Post) (*datastore.Key, error) {
-	return datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "Post", nil), p)
-}
-
-func SavePosts(ctx context.Context, ps *([]*Post)) error {
-	for _, p := range *ps {
-		_, err := savePost(ctx, p)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (p Post) GetChildDSID() []int64 {
+	return p.ChildDSID
 }

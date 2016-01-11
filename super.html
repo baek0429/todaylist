@@ -5,13 +5,7 @@
 			{{range $category := .CVMS}}
 			<li>
 				{{$category.Title}}
-				<ul style="display:inline">
-					{{range $children := $category.Children}}
-					<li style="display:inline">
-						{{$children.Title}}
-					</li>
-					{{end}}
-				</ul>
+	
 			</li>
 			{{end}}
 		</ul>
@@ -21,13 +15,6 @@
 			{{range $location := .LVMS}}
 			<li>
 				{{$location.Title}}
-				<ul style="display:inline">
-					{{range $children := $location.Children}}
-					<li style="display:inline">
-						{{$children.Title}}
-					</li>
-					{{end}}
-				</ul>
 			</li>
 			{{end}}
 		</ul>
