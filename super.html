@@ -1,20 +1,36 @@
 {{define "content"}}
 <div id="content" class="col-xs-12 col-md-10 col-md-offset-1">
-	<row>
-		<div id="column1" class="col-xs-12 col-md-5 " style="border-left: solid thin #ff0000;">
-			{{range $category := .Category}}
-			<row>
-				<p class="col-md-2">{{$category.Title}}</p>
-			</row>
+	<div id="column1" class="col-xs-12 col-md-5 " style="border-left: solid thin #ff0000;">
+		<ul>
+			{{range $category := .CVMS}}
+			<li>
+				{{$category.Title}}
+				<ul style="display:inline">
+					{{range $children := $category.Children}}
+					<li style="display:inline">
+						{{$children.Title}}
+					</li>
+					{{end}}
+				</ul>
+			</li>
 			{{end}}
-		</div>
-		<div id="column2" class="col-xs-12 col-md-5 " style="border-left: solid thin #ff0000;">
-			{{range $location := .Location}}
-			<row>
-				<p class="col-md-2">{{$location.Title}}</p>
-			</row>
+		</ul>
+	</div>
+	<div id="column2" class="col-xs-12 col-md-5 " style="border-left: solid thin #ff0000;">
+		<ul>
+			{{range $location := .LVMS}}
+			<li>
+				{{$location.Title}}
+				<ul style="display:inline">
+					{{range $children := $location.Children}}
+					<li style="display:inline">
+						{{$children.Title}}
+					</li>
+					{{end}}
+				</ul>
+			</li>
 			{{end}}
-		</div>
-	</row>
+		</ul>
+	</div>
 </div>
 {{end}}

@@ -17,9 +17,10 @@ var initDBSet bool
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
-	if !initDBSet {
-		m.InitiateSamples(ctx)
-	}
+	// if !initDBSet {
+	// 	m.InitiateSamples(ctx)
+	// 	initDBSet = true
+	// }
 	t := template.Must(template.ParseGlob("template/*")) // add sub-templates in /template
 	t.ParseFiles("index.html")                           // parse main.html as main
 	posts, err := m.ParseAllPosts(ctx)                   // get all posts in db.
@@ -38,15 +39,18 @@ func superHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 
 	cs, err := m.ParseCategory(ctx)
+	ls, err := m.ParseLocation(ctx)
+	cvms, err := m.GetCategoryVM(ctx, cs, "")
+	lvms, err := m.GetLocationVM(ctx, ls, "")
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
-	ls, err := m.ParseLocation(ctx)
+	// (*cvms)[0].Children = append((*cvms)[0].Children, m.CategoryVM{Title: "woosung"}) // for test.
 	err = t.ExecuteTemplate(w, "base",
 		struct {
-			Category []m.Category
-			Location []m.Location
-		}{*cs, *ls})
+			CVMS []m.CategoryVM
+			LVMS []m.LocationVM
+		}{*cvms, *lvms})
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -147,6 +151,35 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+func adminHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("admin.html")
+		t.Execute(w, nil)
+	}
+	if r.Method == "POST" {
+		ctx := appengine.NewContext(r)
+		r.ParseForm()
+		categoryTitle := r.FormValue("newCategory")
+		categoryParent := r.FormValue("categoryParent")
+		// w.Write([]byte(categoryTitle))
+		// w.Write([]byte(categoryParent))
+		locationTitle := r.FormValue("newLocation")
+		locationParent := r.FormValue("locationParent")
+		if categoryTitle != "" {
+			err := m.SaveCategoryWithTitles(ctx, categoryTitle, categoryParent)
+			if err != nil {
+				w.Write([]byte(err.Error()))
+			}
+		}
+		if locationTitle != "" {
+			err := m.SaveLocationWithTitles(ctx, locationTitle, locationParent)
+			if err != nil {
+				w.Write([]byte(err.Error()))
+			}
+		}
+		http.Redirect(w, r, "/admin", http.StatusFound)
+	}
+}
 
 // serve image from blobstore
 func serveImageHandler(w http.ResponseWriter, r *http.Request) {
@@ -159,5 +192,6 @@ func init() {
 	http.HandleFunc("/add", addHandler)
 	http.HandleFunc("/loc", superHandler)
 	http.HandleFunc("/main/", mainHandler)
+	http.HandleFunc("/admin", adminHandler)
 	http.HandleFunc("/", handler)
 }

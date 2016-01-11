@@ -3,14 +3,6 @@ package model
 import "testing"
 
 func TestCategory(t *testing.T) {
-
-	cms:= []Category
-	cms = append(cms, Category{Title:"test1",})
-
-	type Category struct {
-		UUID       string
-		Title      string
-		ParentDSID string
-	}
-
+	c := CategoryVM{Title: "Hello", Children: []CategoryVM{CategoryVM{Title: "child"}}}
+	c.SetTitle("title").PrintTitle()
 }
